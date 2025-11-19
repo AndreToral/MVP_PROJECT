@@ -1,0 +1,5 @@
+Flask==3.0.0
+flask-cors==4.0.0
+scikit-learn==1.3.0 # O la versión que usaste para entrenar
+numpy==1.25.2 # O la versión que usaste para entrenar
+gunicorn==21.2.0 # Recomendado para servir la app en producción (Railway)
