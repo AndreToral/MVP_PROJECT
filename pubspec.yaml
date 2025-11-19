@@ -1,0 +1,29 @@
+# pubspec.yaml (en /flutter-frontend/)
+
+name: flutter_frontend
+description: VAK Learning Agent Frontend MVP
+
+# ---> AÑADE ESTO (o verifica que exista) <---
+environment:
+  # Esto especifica que se necesita una versión del SDK de Dart 
+  # igual o superior a 3.0.0. 
+  # Si tienes una versión moderna de Flutter, esto es seguro.
+  sdk: '>=3.0.0 <4.0.0' 
+# ---------------------------------------------
+flutter:
+  uses-material-design: true
+  assets:
+    - path: ./node-api-agent/.env
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0
+  flutter_markdown: ^0.7.0 # Asegúrate de usar una versión reciente
+  url_launcher: ^6.1.10 # Necesaria para abrir enlaces externos (URLs) 
+  shared_preferences: ^2.2.2 
+  supabase_flutter: ^2.5.0
+  flutter_dotenv: ^6.0.0
+  lucide_icons_flutter: ^1.0.0
+
+# ... (el resto del archivo)
