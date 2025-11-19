@@ -1,0 +1,201 @@
+# ================================
+# FLUTTER FRONTEND
+# ================================
+
+# Archivos de Flutter
+flutter-frontend/.dart_tool/
+flutter-frontend/.flutter-plugins
+flutter-frontend/.flutter-plugins-dependencies
+flutter-frontend/.packages
+flutter-frontend/.pub-cache/
+flutter-frontend/.pub/
+flutter-frontend/build/
+flutter-frontend/.fvm/
+
+# Archivos de configuración sensibles
+flutter-frontend/lib/config/env_config.dart
+flutter-frontend/.env
+
+# Archivos de IDE
+flutter-frontend/.idea/
+flutter-frontend/*.iml
+flutter-frontend/.vscode/
+flutter-frontend/*.swp
+flutter-frontend/*.swo
+flutter-frontend/*~
+
+# Archivos de sistema
+flutter-frontend/.DS_Store
+flutter-frontend/Thumbs.db
+
+# Archivos de Flutter Web
+flutter-frontend/web/.last_build_id
+
+# ================================
+# NODE.JS BACKEND
+# ================================
+
+# Dependencias de Node
+node-api-agent/node_modules/
+node-api-agent/npm-debug.log*
+node-api-agent/yarn-debug.log*
+node-api-agent/yarn-error.log*
+node-api-agent/.pnpm-debug.log*
+
+# Variables de entorno
+node-api-agent/.env
+node-api-agent/.env.local
+node-api-agent/.env.development.local
+node-api-agent/.env.test.local
+node-api-agent/.env.production.local
+
+# Archivos de logs
+node-api-agent/logs/
+node-api-agent/*.log
+
+# Archivos de IDE
+node-api-agent/.idea/
+node-api-agent/.vscode/
+node-api-agent/*.swp
+node-api-agent/*.swo
+
+# Archivos de sistema
+node-api-agent/.DS_Store
+
+# ================================
+# PYTHON CLASSIFIER
+# ================================
+
+# Python
+python-classifier/__pycache__/
+python-classifier/*.py[cod]
+python-classifier/*$py.class
+python-classifier/*.so
+
+# Entornos virtuales
+python-classifier/venv/
+python-classifier/env/
+python-classifier/ENV/
+python-classifier/.venv/
+
+# Variables de entorno
+python-classifier/.env
+
+# Jupyter Notebook
+python-classifier/.ipynb_checkpoints/
+
+# PyCharm
+python-classifier/.idea/
+
+# VS Code
+python-classifier/.vscode/
+
+# Archivos de sistema
+python-classifier/.DS_Store
+
+# Modelos entrenados (si son muy grandes)
+# python-classifier/*.pkl (Descomenta si no quieres subirlos)
+
+# ================================
+# GENERAL
+# ================================
+
+# Archivos de sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Archivos de IDE generales
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Archivos de logs generales
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.cache
+
+# Archivos de respaldo
+*.bak
+*.backup
+
+# ================================
+# ARCHIVOS ESPECÍFICOS DE SEGURIDAD
+# ================================
+
+# Claves y secretos
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.yml
+secrets.json
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+
+# Certificados
+*.crt
+*.cer
+
+# ================================
+# DEPENDENCIAS Y BUILD
+# ================================
+
+# Dependencias de paquetes
+**/node_modules/
+**/.pub-cache/
+**/__pycache__/
+
+# Carpetas de build
+**/build/
+**/dist/
+**/.next/
+**/.nuxt/
+**/.cache/
+
+# ================================
+# BASE DE DATOS LOCAL
+# ================================
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# ================================
+# OTROS
+# ================================
+
+# Archivos de prueba
+test-results/
+coverage/
+*.coverage
+
+# Archivos comprimidos
+*.zip
+*.tar.gz
+*.rar
+
+# Archivos aleatorios
+.dart_tool/
+.idea/
+.vscode/
+build/
+.flutter-plugins-dependencies
+Procfile
+.metadata
+flutter_frontend.iml
