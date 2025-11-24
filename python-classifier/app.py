@@ -1,5 +1,5 @@
 # app.py
-
+import os
 import pickle
 from flask import Flask, request, jsonify
 from flask_cors import CORS # Necesario si Node.js y Python corren en diferentes puertos
@@ -13,6 +13,11 @@ CORS(app)
 modelo_clasificacion = None
 vectorizador_texto = None
 
+# Configuración del modelo directions
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "Vak_model.pkl")
+VECTOR_PATH = os.path.join(BASE_DIR, "Tfidf_vectorizer.pkl")
+
 # --- Función para cargar los archivos .pkl ---
 def cargar_modelo():
     """Carga el modelo y el vectorizador desde los archivos .pkl."""
@@ -20,11 +25,11 @@ def cargar_modelo():
     
     try:
         # Cargar el modelo (Ej: Naive Bayes, SVM, etc.)
-        with open(r'C:\Users\Jhon\Desktop\TRABAJOS UPAO (1)\ciclo 6\Customer Development (ciclo 7)\MVP_project\python-classifier\Vak_model.pkl', 'rb') as f:
+        with open(MODEL_PATH, 'rb') as f:
             modelo_clasificacion = pickle.load(f)
         
         # Cargar el vectorizador (Ej: TfidfVectorizer, CountVectorizer)
-        with open(r'C:\Users\Jhon\Desktop\TRABAJOS UPAO (1)\ciclo 6\Customer Development (ciclo 7)\MVP_project\python-classifier\Tfidf_vectorizer.pkl', 'rb') as f:
+        with open(VECTOR_PATH, 'rb') as f:
             vectorizador_texto = pickle.load(f)
         
         print("✅ Modelos .pkl cargados correctamente en memoria.")
