@@ -196,6 +196,5 @@ coverage/
 .vscode/
 build/
 .flutter-plugins-dependencies
-Procfile
 .metadata
 flutter_frontend.iml
