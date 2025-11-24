@@ -94,7 +94,7 @@ python-classifier/.vscode/
 python-classifier/.DS_Store
 
 # Modelos entrenados (si son muy grandes)
-python-classifier/*.pkl
+# python-classifier/*.pkl
 
 # ================================
 # GENERAL
