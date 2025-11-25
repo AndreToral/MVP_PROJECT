@@ -41,6 +41,10 @@ def cargar_modelo():
         print(f"❌ Error al cargar los modelos: {e}")
         exit(1)
 
+# Llama a la función de carga inmediatamente después de definirla
+# Esto se ejecutará tanto localmente como en Gunicorn/Railway
+cargar_modelo() # <-- Mover esta llamada aquí
+
 # --- Endpoint de Clasificación ---
 @app.route('/classify', methods=['POST'])
 def classify_text():
