@@ -3,3 +3,4 @@ flask-cors==4.0.0
 scikit-learn==1.6.1 # O la versión que usaste para entrenar
 numpy==1.26.4 # O la versión que usaste para entrenar
 gunicorn==21.2.0 # Recomendado para servir la app en producción (Railway)
+requests==2.31.0 # Para descargar archivos desde URLs
