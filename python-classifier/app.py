@@ -1,6 +1,7 @@
 # app.py
 import os
 import pickle
+import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS # Necesario si Node.js y Python corren en diferentes puertos
 
@@ -18,11 +19,36 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "Vak_model.pkl")
 VECTOR_PATH = os.path.join(BASE_DIR, "Tfidf_vectorizer.pkl")
 
+# URL de los modelos en Drive (si es necesario descargarlos)
+VECTOR_URL = "https://drive.google.com/file/d/1nmHXfLcbFi0yNW_5po7rkhVYlLxYZvD0/view?usp=drive_link"
+MODEL_URL = "https://drive.google.com/file/d/15QD4nHZQRb0LwrOZid9I9Kx89a-NZ8IM/view?usp=drive_link"
+
+def download_file(url, path):
+    """Descarga un archivo desde una URL si no existe localmente."""
+    if not os.path.exists(path):
+        print(f"🌍 Descargando {os.path.basename(path)} desde {url}...")
+        try:
+            response = requests.get(url, stream=True)
+            response.raise_for_status() # Lanza error para códigos HTTP malos
+            with open(path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print(f"✅ Descarga completa de {os.path.basename(path)}.")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Error al descargar {os.path.basename(path)}: {e}")
+            exit(1)
+    else:
+        print(f"☑️ {os.path.basename(path)} ya existe localmente, omitiendo descarga.")
+
 # --- Función para cargar los archivos .pkl ---
 def cargar_modelo():
     """Carga el modelo y el vectorizador desde los archivos .pkl."""
     global modelo_clasificacion, vectorizador_texto
     
+    # Intenta descargar los archivos primero
+    download_file(MODEL_URL, MODEL_PATH)
+    download_file(VECTOR_URL, VECTOR_PATH)
+
     try:
         # Cargar el modelo (Ej: Naive Bayes, SVM, etc.)
         with open(MODEL_PATH, 'rb') as f:
