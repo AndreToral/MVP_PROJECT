@@ -19,9 +19,9 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "Vak_model.pkl")
 VECTOR_PATH = os.path.join(BASE_DIR, "Tfidf_vectorizer.pkl")
 
-# URL de los modelos en Drive (si es necesario descargarlos)
-VECTOR_URL = "https://drive.google.com/file/d/1nmHXfLcbFi0yNW_5po7rkhVYlLxYZvD0/view"
-MODEL_URL = "https://drive.google.com/file/d/15QD4nHZQRb0LwrOZid9I9Kx89a-NZ8IM/view"
+# URL de los modelos en GitHub (si es necesario descargarlos)
+VECTOR_URL = "https://github.com/AndreToral/MVP_PROJECT/releases/download/Models_VAK_v0.0.1/Tfidf_vectorizer.pkl"
+MODEL_URL = "https://github.com/AndreToral/MVP_PROJECT/releases/download/Models_VAK_v0.0.1/Vak_model.pkl"
 
 def download_file(url, path):
     """Descarga un archivo desde una URL si no existe localmente."""
