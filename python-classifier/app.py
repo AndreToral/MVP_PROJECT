@@ -20,8 +20,8 @@ MODEL_PATH = os.path.join(BASE_DIR, "Vak_model.pkl")
 VECTOR_PATH = os.path.join(BASE_DIR, "Tfidf_vectorizer.pkl")
 
 # URL de los modelos en Drive (si es necesario descargarlos)
-VECTOR_URL = "https://drive.google.com/file/d/1nmHXfLcbFi0yNW_5po7rkhVYlLxYZvD0/view?usp=drive_link"
-MODEL_URL = "https://drive.google.com/file/d/15QD4nHZQRb0LwrOZid9I9Kx89a-NZ8IM/view?usp=drive_link"
+VECTOR_URL = "https://drive.google.com/file/d/1nmHXfLcbFi0yNW_5po7rkhVYlLxYZvD0/view"
+MODEL_URL = "https://drive.google.com/file/d/15QD4nHZQRb0LwrOZid9I9Kx89a-NZ8IM/view"
 
 def download_file(url, path):
     """Descarga un archivo desde una URL si no existe localmente."""
