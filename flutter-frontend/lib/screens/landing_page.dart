@@ -153,13 +153,11 @@ class LandingPage extends StatelessWidget {
       ],
     );
 
-    // Contenedor de la Imagen (Simulación)
+    // Contenedor de la Imagen
     final heroImage = Container(
       height: 350,
       decoration: BoxDecoration(
-        color: const Color(0xFFEEF2FF),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFC7D2FE), width: 1),
         boxShadow: const [
           BoxShadow(
             color: Color(0x10000000),
@@ -168,11 +166,12 @@ class LandingPage extends StatelessWidget {
           ),
         ],
       ),
-      alignment: Alignment.center,
-      child: const Text(
-        'Visualización de Estudio Personalizado\n[Imagen de un estudiante interactuando con una interfaz de estudio personalizada]',
-        textAlign: TextAlign.center,
-        style: TextStyle(color: Color(0xFFA5B4FC), fontWeight: FontWeight.w600),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Image.asset(
+          'assets/images/hero_image.png',
+          fit: BoxFit.cover,
+        ),
       ),
     );
 
