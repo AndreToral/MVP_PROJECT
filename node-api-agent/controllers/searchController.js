@@ -22,7 +22,7 @@ const fetchWithRetry = async (query, maxRetries = 5) => {
                 config: {
                     tools: [{ googleSearch: {} }],
                     // Con una temperatura baja para respuestas más precisas
-                    temperature: 0,
+                    temperature: 0.2,
                 }
             });
             // Si tiene éxito, retorna la respuesta
@@ -114,10 +114,10 @@ const buildVAKPrompt = (style, topic) => {
         Instrucciones para la citación:
         1. Utiliza **SOLAMENTE** las URLs completas que se encuentran en la sección 'Fuentes de Búsqueda' que la herramienta de Google te proporciona y confirma que el enlace está activo.
         2. No inventes URLs ni modifiques las existentes.
-        3. Si un título que mencionas no aparece en las fuentes de búsqueda proporcionadas en esta ejecución específica o parece caído, omite la URL o indica [URL no disponible en la búsqueda].
-        4. Cita la URL exacta que aparece en el campo 'URL' de los resultados de búsqueda.
+        3. Si un título que mencionas no aparece en las fuentes de búsqueda proporcionadas en esta ejecución específica o parece caído, omitelo.
+        4. Cita SOLAMENTE el título exacto que aparece en los resultados de búsqueda, motiva al estudiante a que investigue el contenido en el buscador (Por ejemplo, si es video de Youtube: "Busca en Youtube: TITULO").
         4. **En esta sección, ${reference_instruction} que verifican la información proporcionada.
-        5.  **BUSQUEDA PROFUNDA (DEEP RESEARCH):** Antes de generar tu respuesta, debes **analizar en profundidad** al menos 5-7 fuentes diversas (académicas, multimedia y de aplicación práctica) sobre el tema. **Sintetiza la información más actual y relevante** para un dominio completo del conocimiento.
+        5.  **BUSQUEDA PROFUNDA (DEEP RESEARCH):** Antes de generar tu respuesta, debes **analizar en profundidad** al menos las fuentes diversas obtenidas en el punto 4 sobre el tema. **Sintetiza la información más actual y relevante** para un dominio completo del conocimiento.
         5. ${adaptation_instructions}
     `;
     
