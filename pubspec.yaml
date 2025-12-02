@@ -14,6 +14,7 @@ flutter:
   uses-material-design: true
   assets:
     - path: ./node-api-agent/.env
+    - path: ./flutter-frontend/assets/images/hero_image.png
 
 dependencies:
   flutter:
