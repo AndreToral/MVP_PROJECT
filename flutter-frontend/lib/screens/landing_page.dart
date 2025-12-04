@@ -169,7 +169,7 @@ class LandingPage extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: Image.asset(
-          'assets/images/hero_image.png',
+          './flutter-frontend/assets/images/hero_image.png',
           fit: BoxFit.cover,
         ),
       ),
@@ -217,7 +217,7 @@ class LandingPage extends StatelessWidget {
     ];
 
     return Container(
-      color: const Color(0xFFF9FAFB), // Gris 50
+      color: const Color(0xFFF9FAFB),
       padding: EdgeInsets.symmetric(horizontal: paddingHorizontal, vertical: isMobile ? 60 : 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -228,47 +228,33 @@ class LandingPage extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 50),
-
-          // Uso de GridView o Row según el tamaño de la pantalla
+          
+          // ✅ Usar el nuevo BenefitCard con hover
           isMobile
               ? Column(
-                  children: benefits.map((b) => _buildBenefitCard(b)).toList(),
+                  children: benefits.map((b) => BenefitCard(
+                    icon: b['icon'] as IconData,
+                    title: b['title'] as String,
+                    description: b['description'] as String,
+                  )).toList(),
                 )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: benefits.map((b) => Expanded(child: _buildBenefitCard(b))).toList(),
+                  children: benefits.map((b) => Expanded(
+                    child: BenefitCard(
+                      icon: b['icon'] as IconData,
+                      title: b['title'] as String,
+                      description: b['description'] as String,
+                    ),
+                  )).toList(),
                 ),
         ],
       ),
     );
   }
 
-  // Tarjeta de un beneficio individual
-  Widget _buildBenefitCard(Map<String, dynamic> benefit) {
-    return Card(
-      margin: const EdgeInsets.all(12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 8,
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(benefit['icon'] as IconData, size: 48, color: kPrimaryColor),
-            const SizedBox(height: 16),
-            Text(benefit['title'] as String, style: kFeatureTitleStyle.copyWith(fontSize: 18)),
-            const SizedBox(height: 8),
-            Text(
-              benefit['description'] as String,
-              style: kFeatureDescriptionStyle,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  
 
   // 4. WIDGET DEL FOOTER
   Widget _buildFooterSection(double paddingHorizontal) {
@@ -399,6 +385,122 @@ class LandingPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+// ✅ Widget BenefitCard con efecto hover (agregar al final de la clase)
+class BenefitCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+
+  const BenefitCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
+
+  @override
+  State<BenefitCard> createState() => _BenefitCardState();
+}
+
+class _BenefitCardState extends State<BenefitCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        // ✨ Escala de 1.0 a 1.05 (5% más grande)
+        transform: Matrix4.identity()..scale(_isHovered ? 1.05 : 1.0),
+        margin: const EdgeInsets.all(12),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          // ✨ Sombra más pronunciada al hover
+          elevation: _isHovered ? 16 : 8,
+          shadowColor: _isHovered 
+              ? const Color(0xFF4F46E5).withOpacity(0.3) 
+              : Colors.black.withOpacity(0.1),
+          child: Container(
+            padding: const EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              // ✨ Gradiente sutil al hacer hover
+              gradient: _isHovered
+                  ? LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white,
+                        const Color(0xFF4F46E5).withOpacity(0.05),
+                      ],
+                    )
+                  : null,
+              color: _isHovered ? null : Colors.white,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // ✨ Icono con animación
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: _isHovered 
+                        ? const Color(0xFF4F46E5).withOpacity(0.1)
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    widget.icon,
+                    size: 48,
+                    color: _isHovered 
+                        ? const Color(0xFF4F46E5) 
+                        : const Color(0xFF6366F1),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // Título con color animado
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: _isHovered 
+                        ? const Color(0xFF4F46E5) 
+                        : const Color(0xFF6366F1),
+                  ),
+                  child: Text(
+                    widget.title,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                
+                // Descripción
+                Text(
+                  widget.description,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
