@@ -5,6 +5,13 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { classifyStyle } from './controllers/classificationController.js';
 import { searchContent } from './controllers/searchController.js';
+// 🆕 IMPORTAR CONTROLADORES DE APRENDIZAJE ADAPTATIVO
+import {
+  saveStudiedTopic,
+  generateQuiz,
+  submitQuizResults,
+  getTopicsForReview
+} from './controllers/adaptiveLearningController.js';
 
 // Carga las variables de entorno desde .env
 dotenv.config();
@@ -21,6 +28,20 @@ app.post('/api/classify-style', classifyStyle);
 
 // 2. Endpoint para la BÚSQUEDA DE CONTENIDO (Lo implementaremos en el Día 3)
 app.post('/api/content-agent', searchContent); 
+
+// --- 🆕 RUTAS DE APRENDIZAJE ADAPTATIVO ---
+
+// 1. Guardar tema estudiado
+app.post('/api/learning/save-topic', saveStudiedTopic);
+
+// 2. Generar quiz adaptativo
+app.post('/api/learning/generate-quiz', generateQuiz);
+
+// 3. Enviar resultados del quiz
+app.post('/api/learning/submit-quiz', submitQuizResults);
+
+// 4. Obtener temas pendientes de revisión
+app.get('/api/learning/topics-to-review', getTopicsForReview);
 
 // --- Inicialización del Servidor ---
 app.listen(PORT, () => {
