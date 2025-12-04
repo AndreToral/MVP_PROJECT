@@ -1,7 +1,11 @@
+// lib/screens/dashboard_screen.dart (VERSIÓN ACTUALIZADA)
+
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
+import '../services/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../utils/session_manager.dart';
+import 'quiz_screen.dart'; // 🆕 IMPORTAR PANTALLA DE QUIZ
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -12,11 +16,17 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   SupabaseClient get _supabase => Supabase.instance.client;
+  final ApiService _apiService = ApiService();
   
   String _userName = 'Estudiante';
   String _userEmail = '';
   String _learningStyle = 'Cargando...';
   bool _isLoading = true;
+  
+  // 🆕 DATOS DE APRENDIZAJE ADAPTATIVO
+  List<Map<String, dynamic>> _topicsToReview = [];
+  int _studyStreak = 0;
+  int _topicsMastered = 0;
 
   @override
   void initState() {
@@ -37,21 +47,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return;
       }
 
-      // Obtener nombre del usuario
       final userName = user.userMetadata?['full_name'] ?? 'Estudiante';
       
       // Obtener estilo de aprendizaje
-      final response = await _supabase
+      final styleResponse = await _supabase
           .from('students')
           .select('learning_style')
           .eq('id', user.id)
+          .maybeSingle();
+      
+      // 🆕 OBTENER TEMAS PENDIENTES DE REVISIÓN
+      final topicsToReview = await _apiService.getTopicsForReview(user.id);
+      
+      // 🆕 OBTENER PROGRESO
+      final progressResponse = await _supabase
+          .from('student_progress')
+          .select('study_streak_days, total_topics_mastered')
+          .eq('student_id', user.id)
           .maybeSingle();
       
       if (mounted) {
         setState(() {
           _userName = userName;
           _userEmail = user.email ?? '';
-          _learningStyle = response?['learning_style'] ?? 'No clasificado';
+          _learningStyle = styleResponse?['learning_style'] ?? 'No clasificado';
+          _topicsToReview = topicsToReview;
+          _studyStreak = progressResponse?['study_streak_days'] ?? 0;
+          _topicsMastered = progressResponse?['total_topics_mastered'] ?? 0;
           _isLoading = false;
         });
       }
@@ -217,6 +239,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildStyleCard(),
                 const SizedBox(height: 24),
 
+                // 🆕 SECCIÓN DE ESTADÍSTICAS
+                _buildStatsSection(),
+                const SizedBox(height: 24),
+
+                // 🆕 TEMAS PENDIENTES DE REVISIÓN
+                if (_topicsToReview.isNotEmpty) ...[
+                  const Text(
+                    '📚 Temas Pendientes de Revisión',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: kTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ..._topicsToReview.map((topic) => _TopicToReviewCard(
+                    topicName: topic['topic_name'],
+                    masteryScore: (topic['mastery_score'] * 100).toInt(),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => QuizScreen(
+                            topicId: topic['id'],
+                            topicName: topic['topic_name'],
+                            learningStyle: _learningStyle,
+                          ),
+                        ),
+                      ).then((_) => _loadUserData()); // Recargar al volver
+                    },
+                  )).toList(),
+                  const SizedBox(height: 24),
+                ],
+
                 // Título de Acciones Rápidas
                 const Text(
                   'Acciones Rápidas',
@@ -237,7 +293,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: 'Buscar Contenido',
                             description: 'Encuentra material adaptado a tu estilo',
                             color: const Color(0xFF3B82F6),
-                            onTap: () => Navigator.pushNamed(context, '/agent'),
+                            onTap: () => Navigator.pushNamed(context, '/agent')
+                                .then((_) => _loadUserData()),
                           ),
                           const SizedBox(height: 16),
                           _ActionCard(
@@ -257,7 +314,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               title: 'Buscar Contenido',
                               description: 'Encuentra material adaptado a tu estilo',
                               color: const Color(0xFF3B82F6),
-                              onTap: () => Navigator.pushNamed(context, '/agent'),
+                              onTap: () => Navigator.pushNamed(context, '/agent')
+                                  .then((_) => _loadUserData()),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -272,11 +330,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ],
                       ),
-                
-                const SizedBox(height: 40),
-
-                // Sección de Recursos Recomendados
-                _buildResourcesSection(),
               ]),
             ),
           ),
@@ -358,6 +411,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // 🆕 SECCIÓN DE ESTADÍSTICAS
+  Widget _buildStatsSection() {
+    return Row(
+      children: [
+        Expanded(
+          child: _StatCard(
+            icon: Icons.local_fire_department,
+            value: '$_studyStreak',
+            label: 'Racha de días',
+            color: Colors.orange,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.emoji_events,
+            value: '$_topicsMastered',
+            label: 'Temas dominados',
+            color: Colors.amber,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.schedule,
+            value: '${_topicsToReview.length}',
+            label: 'Pendientes',
+            color: Colors.blue,
+          ),
+        ),
+      ],
+    );
+  }
+
   String _getStyleDescription() {
     switch (_learningStyle.toLowerCase()) {
       case 'visual':
@@ -370,53 +457,155 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return 'Completa el test para descubrir tu estilo';
     }
   }
+}
 
-  Widget _buildResourcesSection() {
-    final resources = [
-      {
-        'title': 'Introducción a Algoritmos',
-        'type': 'Visual',
-        'icon': Icons.code,
-        'color': const Color(0xFF3B82F6),
-      },
-      {
-        'title': 'Historia de la Música',
-        'type': 'Auditivo',
-        'icon': Icons.music_note,
-        'color': const Color(0xFF10B981),
-      },
-      {
-        'title': 'Química Experimental',
-        'type': 'Kinestésico',
-        'icon': Icons.science,
-        'color': const Color(0xFFF59E0B),
-      },
-    ];
+// 🆕 WIDGET DE ESTADÍSTICA
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color color;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Recursos Recientes',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: kTextColor,
+  const _StatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-        ),
-        const SizedBox(height: 16),
-        ...resources.map((resource) => _ResourceCard(
-          title: resource['title'] as String,
-          type: resource['type'] as String,
-          icon: resource['icon'] as IconData,
-          color: resource['color'] as Color,
-        )).toList(),
-      ],
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 32),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
 
-// Widget de Tarjeta de Acción con Hover
+// 🆕 WIDGET DE TEMA PENDIENTE
+class _TopicToReviewCard extends StatelessWidget {
+  final String topicName;
+  final int masteryScore;
+  final VoidCallback onTap;
+
+  const _TopicToReviewCard({
+    required this.topicName,
+    required this.masteryScore,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.quiz,
+                    color: kPrimaryColor,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        topicName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: kTextColor,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Text(
+                            'Dominio: $masteryScore%',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: masteryScore >= 80
+                                  ? Colors.green
+                                  : Colors.orange,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: kSubtleTextColor),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Widget de Tarjeta de Acción (ya existía)
 class _ActionCard extends StatefulWidget {
   final IconData icon;
   final String title;
@@ -501,78 +690,6 @@ class _ActionCardState extends State<_ActionCard> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-// Widget de Tarjeta de Recurso
-class _ResourceCard extends StatelessWidget {
-  final String title;
-  final String type;
-  final IconData icon;
-  final Color color;
-
-  const _ResourceCard({
-    required this.title,
-    required this.type,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: kTextColor,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Estilo: $type',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.arrow_forward_ios, size: 16, color: kSubtleTextColor),
-        ],
       ),
     );
   }
