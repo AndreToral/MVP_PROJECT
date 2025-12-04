@@ -74,4 +74,89 @@ class ApiService {
       throw Exception(errorMessage);
     }
   }
+
+  // ========== 🆕 MÉTODOS DE APRENDIZAJE ADAPTATIVO ==========
+  
+  /// Generar un quiz adaptativo
+  Future<Map<String, dynamic>> generateQuiz(
+    String topicName,
+    int difficultyLevel,
+    String learningStyle,
+  ) async {
+    final url = Uri.parse('$_baseUrl/learning/generate-quiz');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'topic_name': topicName,
+        'difficulty_level': difficultyLevel,
+        'learning_style': learningStyle,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Error generando quiz: ${response.statusCode}');
+    }
+  }
+
+  /// Enviar resultados del quiz
+  Future<Map<String, dynamic>> submitQuizResults(
+    String learningTopicId,
+    String studentId,
+    double score,
+    int timeSpentSeconds,
+    List<Map<String, dynamic>> questionsData,
+  ) async {
+    final url = Uri.parse('$_baseUrl/learning/submit-quiz');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'learning_topic_id': learningTopicId,
+        'student_id': studentId,
+        'score': score,
+        'time_spent_seconds': timeSpentSeconds,
+        'questions_data': questionsData,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Error enviando resultados: ${response.statusCode}');
+    }
+  }
+
+  /// Obtener temas pendientes de revisión
+  Future<List<Map<String, dynamic>>> getTopicsForReview(String studentId) async {
+    final url = Uri.parse('$_baseUrl/learning/topics-to-review?student_id=$studentId');
+    final response = await http.get(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data['topics_to_review']);
+    } else {
+      throw Exception('Error obteniendo temas: ${response.statusCode}');
+    }
+  }
+
+  /// Obtener progreso del estudiante
+  Future<Map<String, dynamic>> getStudentProgress(String studentId) async {
+    final url = Uri.parse('$_baseUrl/learning/student-progress?student_id=$studentId');
+    final response = await http.get(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Error obteniendo progreso: ${response.statusCode}');
+    }
+  }
 }
