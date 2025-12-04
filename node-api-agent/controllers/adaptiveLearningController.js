@@ -1,27 +1,24 @@
 // controllers/adaptiveLearningController.js
 
+import { GoogleGenAI } from "@google/genai"; // 🔧 IMPORTACIÓN FALTANTE
 import { supabase } from '../config/supabaseClient.js';
+
+// 🔧 INICIALIZAR GEMINI AI
+const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
 /**
  * Calcular el próximo intervalo de revisión (Spaced Repetition)
  * Basado en el algoritmo SM-2 simplificado
  */
 function calculateNextReview(masteryScore, currentInterval = 1) {
-  // masteryScore: 0.0 - 1.0
-  // currentInterval: días desde última revisión
-  
   if (masteryScore >= 0.9) {
-    // Excelente: revisar en 7 días
-    return 7;
+    return 7; // Excelente: revisar en 7 días
   } else if (masteryScore >= 0.7) {
-    // Bien: revisar en 3 días
-    return 3;
+    return 3; // Bien: revisar en 3 días
   } else if (masteryScore >= 0.5) {
-    // Regular: revisar en 1 día
-    return 1;
+    return 1; // Regular: revisar en 1 día
   } else {
-    // Mal: revisar hoy mismo (6 horas)
-    return 0.25;
+    return 0.25; // Mal: revisar hoy mismo (6 horas)
   }
 }
 
@@ -95,9 +92,8 @@ export const generateQuiz = async (req, res) => {
       }
     `;
     
-    // Llamar a Gemini (usa tu configuración existente)
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.5-flash',
       contents: [prompt],
     });
     

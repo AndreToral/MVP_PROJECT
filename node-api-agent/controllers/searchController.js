@@ -166,6 +166,27 @@ export const searchContent = async (req, res) => {
         
         console.log(`✅ Contenido generado y adaptado a estilo ${estilo_vak}.`);
 
+        // 🆕 GUARDAR AUTOMÁTICAMENTE EN LEARNING_TOPICS
+        try {
+            const nextReviewDate = new Date();
+            nextReviewDate.setDate(nextReviewDate.getDate() + 1);
+            
+            await supabase
+                .from('learning_topics')
+                .insert({
+                    student_id: student_id,
+                    topic_name: topic,
+                    content_generated: contenido_adaptado,
+                    difficulty_level: 1,
+                    next_review_at: nextReviewDate.toISOString(),
+                    last_reviewed_at: new Date().toISOString(),
+                });
+            
+            console.log(`✅ Tema "${topic}" guardado para revisión espaciada.`);
+        } catch (saveError) {
+            console.error('⚠️ Error guardando tema (no crítico):', saveError.message);
+        }
+
     } catch (error) {
         console.error("Error en FASE 1 o 2 (Supabase/Gemini):", error.message);
         return res.status(500).json({ error: 'Error al obtener el estilo VAK o generar el contenido adaptado.' });
